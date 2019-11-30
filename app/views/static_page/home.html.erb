@@ -1,8 +1,25 @@
-Welcome home!
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Score</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
 
-<dl>
-  <% children.each do |child| %>
-    <dt><%= child.name %></dt>
-    <dd>Score: <%= child.score %></dd>
-  <% end %>
-</dl>
+  <tbody>
+    <% children.each do |child| %>
+      <tr>
+        <td><%= child.name %></td>
+        <td><%= child.score %></td>
+        <td><%= child.status || "N/A" %></td>
+        <td>
+          <%= button_to [:score, child] do %>
+            Score
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+  </table>
