@@ -3,7 +3,7 @@
 This is a sample Rails 6 app to house an action cable adapter implementation. It's
 a book keeping application for Santa Claus, to keep track of children.
 
-It's been stripped down to remove distractions.
+It has been stripped down to remove distractions.
 
 1. No asset pipeline, sprockets, webpack, etc.
 1. No action mailer/mailbox/text.
@@ -12,20 +12,17 @@ It's been stripped down to remove distractions.
 
 ## Development
 
-General notes.
-
-* Recommendations.
+1. Make sure you have Ruby installed (see `.tool-versions`).
+1. Install dependencies, `bundle install`
+1. Create development and test databases, `rails db:setup`.
+1. Seed your database with initial data, `rails db:seed`.
+1. Make sure you have access to application secret credentials, `./config/master.key`. Ask your colleagues!
+1. Launch, `rails s`!
 
 ### Deviations from standard Rails
 
 * Using `.tools-version` instead of `.ruby-version`, see <https://asdf-vm.com/>.
 * Using rspec instead of minitest.
-
-### Setup
-
-1. Language and tool dependencies.
-2. Environment and secrets.
-3. Running the application.
 
 ### Testing
 
