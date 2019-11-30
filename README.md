@@ -25,10 +25,9 @@ It has been stripped down to remove distractions.
 
 ### Testing
 
-Notes about test environment.
+* We don't use fixtures, or factories, because there's no need yet.
 
-1. Additional setup.
-1. Running the test suite.
+1. Run the suite through `bundle exec rspec`.
 
 ### Deployment
 
