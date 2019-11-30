@@ -1,0 +1,16 @@
+common: &common
+  adapter: sqlite3
+  pool: 5
+  timeout: 5000
+
+production:
+  <<: *common
+  database: ":memory:"
+
+development:
+  <<: *common
+  database: db/development.sqlite3
+
+test:
+  <<: *common
+  database: ":memory:"
