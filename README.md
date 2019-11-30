@@ -1,6 +1,7 @@
-# Arbetsförmedlingen
+# Santa
 
-This is a sample Rails 6 app to house an action cable adapter implementation.
+This is a sample Rails 6 app to house an action cable adapter implementation. It's
+a book keeping application for Santa Claus, to keep track of children.
 
 It's been stripped down to remove distractions.
 
