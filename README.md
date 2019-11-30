@@ -14,8 +14,7 @@ It has been stripped down to remove distractions.
 
 1. Make sure you have Ruby installed (see `.tool-versions`).
 1. Install dependencies, `bundle install`
-1. Create development and test databases, `rails db:setup`.
-1. Seed your database with initial data, `rails db:seed`.
+1. Create your databases, `rails db:setup`.
 1. Make sure you have access to application secret credentials, `./config/master.key`. Ask your colleagues!
 1. Launch, `rails s`!
 

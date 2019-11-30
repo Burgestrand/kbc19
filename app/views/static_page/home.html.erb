@@ -1,1 +1,8 @@
 Welcome home!
+
+<dl>
+  <% children.each do |child| %>
+    <dt><%= child.name %></dt>
+    <dd>Score: <%= child.score %></dd>
+  <% end %>
+</dl>
