@@ -7,7 +7,7 @@ It's been stripped down to remove distractions.
 
 1. No asset pipeline, sprockets, webpack, etc.
 1. No action mailer/mailbox/text.
-1. In-memory sqlite3 database, i.e. no persistence.
+1. sqlite3 database in development, to avoid requiring more dependencies.
 1. No internationalization or localization.
 
 ## Development
