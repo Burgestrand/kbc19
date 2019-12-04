@@ -3,6 +3,7 @@ namespace :active_job do
   task setup: :environment do
     adapter = ActiveJob::Base.queue_adapter
     adapter.queues.each do |name, queue|
+      Rails.logger.info "Setting up queue: #{name}."
       queue.create_if_necessary!
     end
   end
