@@ -9,10 +9,16 @@ as close as possible.
 ## Development
 
 1. Make sure you have Ruby installed (see `.tool-versions`).
-1. Install dependencies, `bundle install`
-1. Create your databases, `rails db:setup`.
-1. Make sure you have access to application secret credentials, `./config/master.key`. Ask your colleagues!
-1. Launch, `rails s`!
+1. Make sure you have  `./config/master.key`. Ask your colleagues!
+1. Run setup, `bin/setup`.
+
+#### Configuration
+
+- `GOOGLE_CLOUD_CREDENTIALS` — service account credentials for our Google Cloud account. Retrieved from `ENV` in production, but from secret credentials in development.
+
+#### Google Pub/Sub Considerations
+
+1. Work queues (topics/subscriptions) need to be created ahead of time. To do so run `rails active_job:setup`, see `lib/tasks/active_job.rake`. `bin/setup` does this for you.
 
 ### Deviations from standard Rails
 
@@ -21,22 +27,4 @@ as close as possible.
 
 ### Testing
 
-* We don't use fixtures, or factories, because there's no need yet.
-
-1. Run the suite through `bundle exec rspec`.
-
-### Deployment
-
-Notes about deployment.
-
-1. Additional setup.
-1. Deploying the application.
-
-#### Environment variables
-
-- `GOOGLE_CLOUD_CREDENTIALS` — service account credentials for our Google Cloud account.
-
-#### First-time setup
-
-1. Run `rails active_job:create_queues` to ensure Google Pub/Sub has the appropriate topics
-   and subscriptions pre-created.
+1. Run the suite through `bin/rails spec`.

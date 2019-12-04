@@ -17,9 +17,16 @@ FileUtils.chdir APP_ROOT do
   system! 'gem install bundler --conservative'
   system('bundle check') || system!('bundle install')
 
+  system! 'gem install foreman --conservative'
+
   puts "\n== Removing old logs and tempfiles =="
   system! 'bin/rails log:clear tmp:clear'
 
-  puts "\n== Restarting application server =="
-  system! 'bin/rails restart'
+  puts "\n== Setting up database =="
+  system! 'bin/rails db:setup'
+
+  puts "\n== Setting up Google Pub/Sub queues =="
+  system! 'bin/rails active_job:setup'
 end
+
+exec 'bin/develop'

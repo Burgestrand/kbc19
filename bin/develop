@@ -1,0 +1,1 @@
+exec foreman start --procfile Procfile.dev --env .env.dev

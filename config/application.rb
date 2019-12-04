@@ -30,5 +30,12 @@ module Santa
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    if ENV["RAILS_LOG_TO_STDOUT"].present?
+      logger = ActiveSupport::Logger.new($stdout)
+      $stdout.sync = true
+      logger.formatter = config.log_formatter
+      config.logger    = ActiveSupport::TaggedLogging.new(logger)
+    end
   end
 end
