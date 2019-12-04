@@ -18,6 +18,9 @@ gem 'bootsnap', '>= 1.4.2', require: false
 # Required by our ActiveJob Google Pub/Sub adapter.
 gem 'google-cloud-pubsub', '~> 1.0'
 
+# Use pry as main development console.
+gem 'pry-rails'
+
 group :development, :test do
   # Alternative testing framework to minitest, see https://relishapp.com/rspec/rspec-rails/docs
   gem 'rspec-rails'
