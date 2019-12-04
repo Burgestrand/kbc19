@@ -15,6 +15,9 @@ gem 'sqlite3'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false
 
+# Required by our ActiveJob Google Pub/Sub adapter.
+gem 'google-cloud-pubsub', '~> 1.0'
+
 group :development, :test do
   # Alternative testing framework to minitest, see https://relishapp.com/rspec/rspec-rails/docs
   gem 'rspec-rails'
