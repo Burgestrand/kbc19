@@ -1,14 +1,10 @@
 # Santa
 
-This is a sample Rails 6 app to house an action cable adapter implementation. It's
-a book keeping application for Santa Claus, to keep track of children.
+This is a sample Rails 6 app to house an action cable adapter implementation.
 
-It has been stripped down to remove distractions.
-
-1. No asset pipeline, sprockets, webpack, etc.
-1. No action mailer/mailbox/text.
-1. sqlite3 database in development, to avoid requiring more dependencies.
-1. No internationalization or localization.
+It has been stripped down to remove distractions. Uses sqlite3 in development
+for ease of getting started, in practice we'd probably want to mimic production
+as close as possible.
 
 ## Development
 
@@ -35,3 +31,7 @@ Notes about deployment.
 
 1. Additional setup.
 1. Deploying the application.
+
+#### Environment variables
+
+- `GOOGLE_CLOUD_CREDENTIALS` — service account credentials for our Google Cloud account.
