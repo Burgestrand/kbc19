@@ -35,3 +35,8 @@ Notes about deployment.
 #### Environment variables
 
 - `GOOGLE_CLOUD_CREDENTIALS` — service account credentials for our Google Cloud account.
+
+#### First-time setup
+
+1. Run `rails active_job:create_queues` to ensure Google Pub/Sub has the appropriate topics
+   and subscriptions pre-created.
