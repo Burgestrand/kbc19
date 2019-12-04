@@ -9,7 +9,7 @@ class GooglePubSubActiveJobAdapter
   # @param [Array<String>] :queues: whitelist of queue names allowed in jobs
   def initialize(pubsub:, queues:)
     @pubsub = pubsub
-    @queues = queues.reduce({}).map { |hash, queue_name|
+    @queues = queues.reduce({}) { |hash, queue_name|
       topic = pubsub.find_topic(queue_name)
       subscription = pubsub.find_subscription("#{queue_name}-subscription-main")
       hash.merge(queue_name => Queue.new(topic: topic, subscription: subscription))
@@ -35,6 +35,15 @@ class GooglePubSubActiveJobAdapter
 end
 
 Rails.application.config.active_job.tap do |active_job|
-  pubsub = Google::Cloud::Pubsub.new(credentials: ENV.fetch("GOOGLE_CLOUD_CREDENTIALS"))
-  active_job.adapter = GooglePubSubActiveJobAdapter.new(pubsub: pubsub)
+  credentials = if Rails.env.production?
+    JSON.parse(ENV.fetch("GOOGLE_CLOUD_CREDENTIALS"))
+  else
+    JSON.parse(Rails.application.credentials.fetch(:GOOGLE_CLOUD_CREDENTIALS))
+  end
+
+  pubsub = Google::Cloud::Pubsub.new(credentials: credentials)
+  active_job.adapter = GooglePubSubActiveJobAdapter.new(
+    pubsub: pubsub,
+    queues: %w[default]
+  )
 end
