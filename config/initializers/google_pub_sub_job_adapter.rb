@@ -24,6 +24,24 @@ class GooglePubSubActiveJobAdapter
     job
   end
 
+  # Perform the logic necessary to execute the job within the message.
+  #
+  # @note Delayed jobs are a bit special in how they're executed.
+  # @param [Google::Cloud::Pubsub::ReceivedMessage] message
+  # @return whatever the job #perform method returns.
+  def self.execute(message)
+    job = decode_message(message)
+
+    if job.scheduled_at.present? && job.scheduled_at > Time.now.to_i
+      # Do nothing. Without ack! message will eventually be re-added
+      # to the message queue and picked up again.
+    else
+      value = job.perform_now
+      message.ack!
+      value
+    end
+  end
+
   # A tiny abstraction around Google Pub/Sub topics and subscribers.
   class Queue
     def initialize(name, pubsub:)
@@ -114,7 +132,9 @@ class GooglePubSubActiveJobAdapter
   # @param [ActiveJob::Base] job
   # @param [Numeric] timestamp UNIX timestamp
   def enqueue_at(job, timestamp)
-    queue = queues.fetch(job.queue_name)
+    queue = queues.fetch(job.queue_name) do
+      raise Error, "Unknown queue #{job.queue_name} — did you forget to add it to the adapter whitelist?"
+    end
     serialized_job = self.class.encode_job(job)
     attributes = timestamp && { "timestamp" => Integer(timestamp) }
     message = queue.topic.publish(serialized_job, attributes)

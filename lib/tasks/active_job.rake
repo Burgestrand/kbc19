@@ -26,9 +26,8 @@ namespace :active_job do
       Rails.logger.debug "[#{worker_name}] Starting."
 
       subscriber = queue.subscription.listen do |message|
-        job = GooglePubSubActiveJobAdapter.decode_message(message)
-        job.perform_now
-        message.ack!
+        Rails.logger.debug "[#{worker_name}] Executing ##{message.message_id}"
+        GooglePubSubActiveJobAdapter.execute(message)
       end
       
       subscriber.on_error do |error|
