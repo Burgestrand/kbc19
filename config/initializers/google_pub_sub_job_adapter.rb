@@ -117,6 +117,8 @@ class GooglePubSubActiveJobAdapter
       queue.topic.publish(serialized_job)
     end
 
+    # NOTE: This is not strictly necessary, but it feels
+    # consistent with how decode_message works.
     job.provider_job_id = message.message_id
   end
 end
