@@ -10,9 +10,9 @@ class GenericJob < ApplicationJob
   end
 
   def perform(work)
-    if work == "no-op"
+    if work == "noop"
       # We do nada!
-    elsif work == "fake-it"
+    elsif work == "work"
       # Yay, we simulate something important.
       sleep((rand * 5).floor)
     elsif work == "explode"

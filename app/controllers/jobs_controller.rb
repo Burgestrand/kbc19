@@ -1,6 +1,6 @@
 class JobsController < ApplicationController
   def no_op
-    job = GenericJob.perform_later "no-op"
+    job = GenericJob.perform_later "noop"
     flash[:notice] = "No-op job ##{job.provider_job_id} created."
 
     redirect_back(fallback_location: root_url, status: :see_other)
