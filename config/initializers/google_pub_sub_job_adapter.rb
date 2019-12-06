@@ -20,6 +20,7 @@ class GooglePubSubActiveJobAdapter
     serialized_job = JSON.parse(message.data)
     job = ActiveJob::Base.deserialize(serialized_job)
     job.provider_job_id = message.message_id
+    job.scheduled_at = message.attributes["timestamp"]&.to_i
     job
   end
 
@@ -103,20 +104,20 @@ class GooglePubSubActiveJobAdapter
   # ActiveJob adapter API.
   #
 
+  # Enqueue a job for immediate execution.
   def enqueue(job)
     enqueue_at(job, nil)
   end
 
+  # Enqueue a job for execution some time later.
+  #
+  # @param [ActiveJob::Base] job
+  # @param [Numeric] timestamp UNIX timestamp
   def enqueue_at(job, timestamp)
     queue = queues.fetch(job.queue_name)
     serialized_job = self.class.encode_job(job)
-
-    message = if timestamp.present?
-      queue.topic.publish(serialized_job, { "timestamp" => timestamp.iso8601 })
-    else
-      queue.topic.publish(serialized_job)
-    end
-
+    attributes = timestamp && { "timestamp" => Integer(timestamp) }
+    message = queue.topic.publish(serialized_job, attributes)
     # NOTE: This is not strictly necessary, but it feels
     # consistent with how decode_message works.
     job.provider_job_id = message.message_id
