@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
-  resources :children, only: [] do
-    post :score, on: :member
+  resources :jobs, only: [] do
+    collection do
+      post :no_op
+      post :exploding
+    end
   end
 
   get :home, to: "static_page#home", as: :home_page

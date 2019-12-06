@@ -10,11 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_30_204447) do
+ActiveRecord::Schema.define(version: 2019_12_04_224546) do
 
-  create_table "children", force: :cascade do |t|
-    t.string "name", null: false
-    t.integer "score", default: 0, null: false
+  create_table "job_executions", force: :cascade do |t|
+    t.string "provider_job_id", null: false
+    t.integer "duration", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

@@ -1,29 +1,41 @@
+<ul>
+  <li>
+    <%= button_to no_op_jobs_path do %>
+      Schedule a no-op job
+    <% end %>
+  </li>
+  <li>
+    <%= button_to exploding_jobs_path do %>
+      Schedule a forever-explode job
+    <% end %>
+  </li>
+</ul>
+
 <table>
   <caption>
-    Children
+    Job Executions
   </caption>
 
   <thead>
     <tr>
-      <th>Name</th>
-      <th>Score</th>
-      <th>Status</th>
-      <th>Actions</th>
+      <th>Google ID</th>
+      <th>Duration</th>
     </tr>
   </thead>
 
+  <tfoot>
+    <tr>
+      <th>Total duration</th>
+      <th><%= job_executions.sum(&:duration_in_seconds).round(2) %>s</th>
+    </tr>
+  </tfoot>
+
   <tbody>
-    <% children.each do |child| %>
+    <% job_executions.each do |job| %>
       <tr>
-        <td><%= child.name %></td>
-        <td><%= child.score %></td>
-        <td><%= child.status || "N/A" %></td>
-        <td>
-          <%= button_to [:score, child] do %>
-            Score
-          <% end %>
-        </td>
+        <td><%= job.provider_job_id %></td>
+        <td><%= job.duration_in_seconds.round(2) %>s</td>
       </tr>
     <% end %>
   </tbody>
-  </table>
+</table>

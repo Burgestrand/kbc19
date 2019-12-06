@@ -1,9 +1,7 @@
 class StaticPageController < ApplicationController
   def home
-    children = Child.all
-
     render :home, locals: {
-      children: children
+      job_executions: JobExecution.all
     }
   end
 end
