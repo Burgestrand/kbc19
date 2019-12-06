@@ -3,6 +3,26 @@ require 'google/cloud/pubsub'
 class GooglePubSubActiveJobAdapter
   class Error < StandardError; end
 
+  EMULATOR = {
+    emulator_host: "localhost:8085",
+    project_id: "google-pubsub-emulator".freeze
+  }
+
+  # @param [ActiveJob::Base]
+  # @return [String]
+  def self.encode_job(job)
+    job.serialize.to_json
+  end
+
+  # @param [Google::Cloud::Pubsub::ReceivedMessage] message
+  # @return [ActiveJob::Base]
+  def self.decode_message(message)
+    serialized_job = JSON.parse(message.data)
+    job = ActiveJob::Base.deserialize(serialized_job)
+    job.provider_job_id = message.message_id
+    job
+  end
+
   # A tiny abstraction around Google Pub/Sub topics and subscribers.
   class Queue
     def initialize(name, pubsub:)
@@ -11,21 +31,31 @@ class GooglePubSubActiveJobAdapter
       @topic = pubsub.find_topic(topic_name)
       @subscription = pubsub.find_subscription(subscription_name)
 
-      if topic.present? && subscription.blank?
+      if topic.present? && (subscription.blank? || !subscription.topic.exists?)
         # Note: `#create_if_necessary!` has an invariant based on this error.
-        raise Error, "No subscription found for queue topic #{name}"
+        raise Error, "No active subscription found for queue topic #{name}"
       end
     end
 
     def create_if_necessary!
-      # We assume that our initializer would've failed if our topic exists but
-      # not our subscription.
-      return unless topic.blank?
-      @topic = pubsub.create_topic(topic_name)
-      @subscription = topic.create_subscription(subscription_name).yield_self do |subscription|
-        # Default subscription expiry is 31 days. We want none of that.
-        subscription.expires_in = nil
+      if topic.blank?
+        @topic = pubsub.create_topic(topic_name).tap do |topic|
+          raise error, "Unable to create topic #{topic_name}" if topic.nil?
+        end
       end
+
+      @subscription = @topic.find_subscription(subscription_name) || @topic.create_subscription(subscription_name)
+      @subscription.tap do |subscription|
+        raise Error, "Unable to create subscription #{subscription_name}" if subscription.nil?
+
+        # Default subscription expiry is 31 days. We want none of that.
+        subscription.expires_in = nil unless pubsub.project_id == EMULATOR.fetch(:project_id)
+      end
+    end
+
+    def destroy!(this_is_not_accidental:)
+      @topic.delete
+      @subscription.delete
     end
 
     # @return [String]
@@ -51,11 +81,14 @@ class GooglePubSubActiveJobAdapter
     end
   end
 
-  # @param [Google::Cloud::Pubsub] :pubsub:
+  # @param [Google::Cloud::Pubsub, :emulator] :pubsub:
   # @param [Array<String>] :queues: whitelist of queue names allowed in jobs
   def initialize(pubsub:, queues:)
+    pubsub = Google::Cloud::PubSub.new(EMULATOR) if pubsub == :emulator
+
     @pubsub = pubsub
     @queues = queues.reduce({}) { |hash, queue_name|
+      queue_name = queue_name.to_s
       hash.merge(queue_name => Queue.new(queue_name, pubsub: pubsub))
     }.freeze
   end
@@ -71,24 +104,34 @@ class GooglePubSubActiveJobAdapter
   #
 
   def enqueue(job)
-    queue = queues.fetch(job.queue_name)
-    message = queue.topic.publish(job.serialize)
-    job.provider_job_id = message.message_id
+    enqueue_at(job, nil)
   end
 
   def enqueue_at(job, timestamp)
-    raise NotImplementedError
+    queue = queues.fetch(job.queue_name)
+    serialized_job = self.class.encode_job(job)
+
+    message = if timestamp.present?
+      queue.topic.publish(serialized_job, { "timestamp" => timestamp.iso8601 })
+    else
+      queue.topic.publish(serialized_job)
+    end
+
+    job.provider_job_id = message.message_id
   end
 end
 
 Rails.application.config.active_job.tap do |active_job|
-  credentials = if Rails.env.production?
-    JSON.parse(ENV.fetch("GOOGLE_CLOUD_CREDENTIALS"))
-  else
-    JSON.parse(Rails.application.credentials.fetch(:GOOGLE_CLOUD_CREDENTIALS))
+  pubsub = if Rails.env.production?
+    credentials = JSON.parse(ENV.fetch("GOOGLE_CLOUD_CREDENTIALS"))
+    Google::Cloud::Pubsub.new(credentials: credentials)
+  elsif Rails.env.development?
+    credentials = JSON.parse(Rails.application.credentials.fetch(:GOOGLE_CLOUD_CREDENTIALS))
+    Google::Cloud::Pubsub.new(credentials: credentials)
+  elsif Rails.env.test?
+    :emulator
   end
 
-  pubsub = Google::Cloud::Pubsub.new(credentials: credentials)
   active_job.queue_adapter = GooglePubSubActiveJobAdapter.new(
     pubsub: pubsub,
     queues: %w[default]

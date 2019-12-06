@@ -8,6 +8,12 @@ namespace :active_job do
     end
   end
 
+  namespace :emulator do
+    task :start do
+      sh "gcloud beta emulators pubsub start"
+    end
+  end
+
   desc "Run the ActiveJob worker!"
   task work: :environment do
     adapter = ActiveJob::Base.queue_adapter
@@ -20,7 +26,9 @@ namespace :active_job do
       Rails.logger.debug "[#{worker_name}] Starting."
 
       subscriber = queue.subscription.listen do |message|
-        Rails.logger.info "[#{worker_name}] #{message}"
+        job = GooglePubSubActiveJobAdapter.decode_message(message)
+        job.perform_now
+        message.ack!
       end
       
       subscriber.on_error do |error|

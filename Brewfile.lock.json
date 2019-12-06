@@ -1,0 +1,21 @@
+{
+  "entries": {
+    "cask": {
+      "google-cloud-sdk": {
+        "version": "latest"
+      }
+    }
+  },
+  "system": {
+    "macos": {
+      "catalina": {
+        "HOMEBREW_VERSION": "2.2.0",
+        "HOMEBREW_PREFIX": "/usr/local",
+        "Homebrew/homebrew-core": "350f7ec04c6030438688cce516636c70ca05d9b1",
+        "CLT": "",
+        "Xcode": "11.1",
+        "macOS": "10.15"
+      }
+    }
+  }
+}
