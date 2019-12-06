@@ -28,24 +28,24 @@ class GooglePubSubActiveJobAdapter
       end
     end
 
-    # @returns [String]
+    # @return [String]
     attr_reader :name
 
-    # @returns [Google::Cloud::Pubsub]
+    # @return [Google::Cloud::Pubsub]
     attr_reader :pubsub
 
-    # @returns [Google::Cloud::Pubsub::Topic]
+    # @return [Google::Cloud::Pubsub::Topic]
     attr_reader :topic
 
-    # @returns [Google::Cloud::Pubsub::Subscription]
+    # @return [Google::Cloud::Pubsub::Subscription]
     attr_reader :subscription
 
-    # @returns [String] google pub/sub short name for our topic
+    # @return [String] google pub/sub short name for our topic
     private def topic_name
       name
     end
 
-    # @returns [String] google pub/sub short name for our main subscription
+    # @return [String] google pub/sub short name for our main subscription
     private def subscription_name
       "#{name}-subscription-main"
     end
@@ -60,10 +60,10 @@ class GooglePubSubActiveJobAdapter
     }.freeze
   end
 
-  # @returns [Hash<String, Queue>] whitelist of queues, as passed into #initialize
+  # @return [Hash<String, Queue>] whitelist of queues, as passed into #initialize
   attr_reader :queues
 
-  # @returns [Google::Cloud::Pubsub] pubsub instance this adapter was created with.
+  # @return [Google::Cloud::Pubsub] pubsub instance this adapter was created with.
   attr_reader :pubsub
 
   #
