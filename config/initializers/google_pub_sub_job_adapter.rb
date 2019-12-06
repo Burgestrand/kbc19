@@ -159,6 +159,6 @@ Rails.application.config.active_job.tap do |active_job|
 
   active_job.queue_adapter = GooglePubSubActiveJobAdapter.new(
     pubsub: pubsub,
-    queues: %w[default]
+    queues: %w[default morgue]
   )
 end
