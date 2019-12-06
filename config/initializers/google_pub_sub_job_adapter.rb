@@ -28,17 +28,19 @@ class GooglePubSubActiveJobAdapter
   #
   # @note Delayed jobs are a bit special in how they're executed.
   # @param [Google::Cloud::Pubsub::ReceivedMessage] message
-  # @return whatever the job #perform method returns.
   def self.execute(message)
     job = decode_message(message)
+    delayed_by = if job.scheduled_at.present?
+      job.scheduled_at - Time.now.to_i
+    end
 
-    if job.scheduled_at.present? && job.scheduled_at > Time.now.to_i
-      # Do nothing. Without ack! message will eventually be re-added
-      # to the message queue and picked up again.
+    if delayed_by && delayed_by > 0
+      # Modify ack! deadline so that the message is automatically rescheduled
+      # once it's past its deadline.
+      message.modify_ack_deadline!(delayed_by)
     else
-      value = job.perform_now
+      job.perform_now
       message.ack!
-      value
     end
   end
 

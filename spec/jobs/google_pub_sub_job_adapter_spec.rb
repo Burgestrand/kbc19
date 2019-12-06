@@ -4,8 +4,15 @@ RSpec.describe GooglePubSubActiveJobAdapter do
   class FakeJob < ActiveJob::Base
     queue_as :test_queue
 
+    @count = 0
+
+    class << self
+      attr_accessor :count
+    end
+
     def perform(a, b)
-      "Answer: #{a + b}"
+      # Note: don't try to run parallel tests with this implementation.
+      self.class.count += 1
     end
   end
 
@@ -29,10 +36,26 @@ RSpec.describe GooglePubSubActiveJobAdapter do
       decoded_job = described_class.decode_message(message)
 
       expect(message).to receive(:ack!).and_call_original
-      expect(described_class.execute(message)).to eq("Answer: 4")
+
+      expect { described_class.execute(message) }
+        .to change { FakeJob.count }.by(1)
     end
 
-    it "delays execution/re-queueing of #enqueue_at'd messages"
+    it "delays execution/re-queueing of #enqueue_at'd messages" do
+      future_timestamp = 10.minutes.from_now.to_i
+
+      expect(test_queue.subscription.pull).to be_empty
+      job_adapter.enqueue_at(job, future_timestamp)
+
+      message = test_queue.subscription.wait_for_messages[0]
+      decoded_job = described_class.decode_message(message)
+
+      expect(message).not_to receive(:ack!)
+      expect(message).to receive(:modify_ack_deadline!).with(10.minutes)
+
+      expect { described_class.execute(message) }
+        .not_to change { FakeJob.count }
+    end
   end
 
   describe "#enqueue" do
