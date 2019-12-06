@@ -14,7 +14,7 @@ ActiveRecord::Schema.define(version: 2019_12_04_224546) do
 
   create_table "job_executions", force: :cascade do |t|
     t.string "provider_job_id", null: false
-    t.integer "duration", null: false
+    t.decimal "duration", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

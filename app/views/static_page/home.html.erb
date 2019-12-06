@@ -26,7 +26,7 @@
   <tfoot>
     <tr>
       <th>Total duration</th>
-      <th><%= job_executions.sum(&:duration_in_seconds).round(2) %>s</th>
+      <th><%= (job_executions.sum(&:duration) / 1000.0).round(4) %>s</th>
     </tr>
   </tfoot>
 
@@ -34,7 +34,7 @@
     <% job_executions.each do |job| %>
       <tr>
         <td><%= job.provider_job_id %></td>
-        <td><%= job.duration_in_seconds.round(2) %>s</td>
+        <td><%= job.duration.round(4) %>ms</td>
       </tr>
     <% end %>
   </tbody>
