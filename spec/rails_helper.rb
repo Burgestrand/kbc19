@@ -59,4 +59,12 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+
+  config.around(:each, type: :job) do |example|
+    test_adapter = ActiveJob::QueueAdapters::TestAdapter.new
+
+    ActiveJob::Base.enable_test_adapter(test_adapter)
+    example.run
+    ActiveJob::Base.disable_test_adapter
+  end
 end
