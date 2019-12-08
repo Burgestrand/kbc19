@@ -34,7 +34,18 @@ rescue ActiveRecord::PendingMigrationError => e
   puts e.to_s.strip
   exit 1
 end
+
+RSpec.shared_context "job test adapter" do
+  let(:test_adapter) { ActiveJob::QueueAdapters::TestAdapter.new }
+end
+
 RSpec.configure do |config|
+  config.include ActiveSupport::Testing::TimeHelpers
+
+  config.after(:each) do
+    travel_back
+  end
+
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.
@@ -60,9 +71,9 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
-  config.around(:each, type: :job) do |example|
-    test_adapter = ActiveJob::QueueAdapters::TestAdapter.new
+  config.include_context "job test adapter", type: :job
 
+  config.around(:each, type: :job) do |example|
     ActiveJob::Base.enable_test_adapter(test_adapter)
     example.run
     ActiveJob::Base.disable_test_adapter

@@ -5,8 +5,8 @@ class GenericJob < ApplicationJob
   #
   # Once the maximum retries have been reached, put the job on a morgue queue
   # for later inspection.
-  retry_on StandardError, wait: 5.minutes, attempts: 2 do |job, error|
-    job.retry_job(wait: 0, queue: :morgue, error: error)
+  retry_on StandardError, wait: 5.minutes, attempts: 3 do |job, error|
+    job.retry_job(wait: nil, queue: :morgue, error: error)
   end
 
   def perform(work)
@@ -15,8 +15,6 @@ class GenericJob < ApplicationJob
     elsif work == "work"
       # Yay, we simulate something important.
       sleep((rand * 5).floor)
-    elsif work == "explode"
-      raise "Something went to complete shit."
     else
       raise "We don't know what to do with this work: #{work}"
     end
