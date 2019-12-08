@@ -16,12 +16,20 @@ namespace :active_job do
 
   desc "Run the ActiveJob worker!"
   task work: :environment do
+    queues_argument = ENV.fetch("QUEUES") do
+      abort "You must specify QUEUES= environment variable, e.g. QUEUES=default"
+    end
+
+    queues = Set.new(queues_argument.split(","))
+    abort "No work queues specified in QUEUES. Aborting." if queues.empty?
+
     adapter = ActiveJob::Base.queue_adapter
 
-    Rails.logger.debug "Starting workers."
-
-    subscribers = adapter.queues.map do |name, queue|
+    subscribers = queues.map do |name|
       worker_name = "Worker##{name}"
+      queue = adapter.queues.fetch(name) do
+        abort "Unknown queue name, #{name}!"
+      end
 
       Rails.logger.debug "[#{worker_name}] Starting."
 

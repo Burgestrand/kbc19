@@ -1,2 +1,2 @@
 web: rails server -p $PORT
-worker: rails active_job:work
+worker: QUEUES=default rails active_job:work
