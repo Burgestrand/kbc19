@@ -1,6 +1,6 @@
 # Santa
 
-This is a sample Rails 6 app to house an action cable adapter implementation.
+This is a sample Rails 6 app to house an active job adapter implementation.
 
 It has been stripped down to remove distractions. Uses sqlite3 in development
 for ease of getting started, in practice we'd probably want to mimic production
