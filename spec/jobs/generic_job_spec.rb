@@ -1,6 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe GenericJob, type: :job do
+  # Unfortunately the active job test adapter was a bit difficult to use here:
+  #
+  # - We want to perform enqueued jobs, so that retry logic is executed.
+  # - We want to perform enqueued_at jobs, so that retry logic is executed.
+  # - We don't want to perform :morgue jobs, or we'll be performing them forever.
+  #   Unfortunately the regular test adapter cannot assert on filtered jobs, so
+  #   we won't be able to know if the morgue job was enqueued or not.
+  #
   class MoreUsefulTestAdapter
     def initialize
       @jobs = []
