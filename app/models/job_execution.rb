@@ -12,4 +12,8 @@ class JobExecution < ApplicationRecord
   def self.total_duration
     sum(:duration)
   end
+
+  def self.total_count
+    count
+  end
 end

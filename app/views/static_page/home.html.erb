@@ -1,3 +1,11 @@
+<h1>Statistics</h1>
+<p>
+  Total number of jobs: <%= JobExecution.total_count %>.
+</p>
+<p>
+  Total duration of jobs: <%= JobExecution.total_duration %>.
+</p>
+
 <ul>
   <li>
     <%= button_to no_op_jobs_path do %>
@@ -10,32 +18,3 @@
     <% end %>
   </li>
 </ul>
-
-<table>
-  <caption>
-    Job Executions
-  </caption>
-
-  <thead>
-    <tr>
-      <th>Google ID</th>
-      <th>Duration</th>
-    </tr>
-  </thead>
-
-  <tfoot>
-    <tr>
-      <th>Total duration</th>
-      <th><%= (JobExecution.total_duration / 1000.0).round(4) %>s</th>
-    </tr>
-  </tfoot>
-
-  <tbody>
-    <% job_executions.each do |job| %>
-      <tr>
-        <td><%= job.provider_job_id %></td>
-        <td><%= job.duration.round(4) %>ms</td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
