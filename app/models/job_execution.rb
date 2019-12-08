@@ -5,7 +5,11 @@ class JobExecution < ApplicationRecord
   # @!attribute duration
   # @return [Integer] duration in milliseconds
 
-  def duration_in_seconds
-    duration / 1000.0
+  # @note Calculates duration on the fly. Once you reach a large
+  #       number of jobs you'll want to calculate this periodically,
+  #       or keep a running tally.
+  # @return [Integer] total duration in milliseconds.
+  def self.total_duration
+    sum(:duration)
   end
 end
