@@ -12,7 +12,6 @@ as close as possible.
    them on different queues to avoid scheduled jobs taking unnecessary power from acute
    work… but frankly there's no reason to at this time. If it becomes a problem, sure.
 1. There's no support for different job priorities.
-1. There's no support for only working certain queues.
 
 ## Development
 
