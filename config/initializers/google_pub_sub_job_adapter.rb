@@ -6,7 +6,7 @@ class GooglePubSubActiveJobAdapter
   EMULATOR = {
     emulator_host: "localhost:8085",
     project_id: "google-pubsub-emulator".freeze
-  }
+  }.freeze
 
   # @param [ActiveJob::Base]
   # @return [String]
@@ -105,7 +105,18 @@ class GooglePubSubActiveJobAdapter
   # @param [Google::Cloud::Pubsub, :emulator] :pubsub:
   # @param [Array<String>] :queues: whitelist of queue names allowed in jobs
   def initialize(pubsub:, queues:)
-    pubsub = Google::Cloud::PubSub.new(EMULATOR) if pubsub == :emulator
+    if pubsub == :emulator
+      # Cloud client hangs forever if emulator isn't started. Let's double-check
+      # the connection before we try to hook it up.
+      begin
+        host, port = EMULATOR.fetch(:emulator_host).split(":", 2)
+        Socket.tcp(host, port, { connect_timeout: 0.1 }, &:close)
+      rescue Errno::ECONNREFUSED
+        raise Error, "Emulator does not appear to be running at #{host}:#{port}"
+      end
+
+      pubsub = Google::Cloud::PubSub.new(EMULATOR)
+    end
 
     @pubsub = pubsub
     @queues = queues.reduce({}) { |hash, queue_name|
