@@ -8,9 +8,7 @@ RSpec.feature "View home page", type: :feature do
 
     visit home_page_path
 
-    within_table 'Job Executions' do
-      expect(page).to have_content '12.0s'
-      expect(page).to have_content 'Job-1'
-    end
+    expect(page).to have_content 'Total number of jobs: 3'
+    expect(page).to have_content 'Total duration of jobs: 12.0s'
   end
 end

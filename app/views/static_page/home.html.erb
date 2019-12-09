@@ -3,7 +3,7 @@
   Total number of jobs: <%= JobExecution.total_count %>.
 </p>
 <p>
-  Total duration of jobs: <%= JobExecution.total_duration %>.
+  Total duration of jobs: <%= (JobExecution.total_duration / 1000.0).round(2) %>s.
 </p>
 
 <ul>
