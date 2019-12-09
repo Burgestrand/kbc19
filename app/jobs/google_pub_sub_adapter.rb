@@ -1,48 +1,12 @@
 require 'google/cloud/pubsub'
 
 class GooglePubSubAdapter
-  class Error < StandardError; end
-
   EMULATOR = {
     emulator_host: "localhost:8085",
     project_id: "google-pubsub-emulator".freeze
   }.freeze
 
-  # @param [ActiveJob::Base]
-  # @return [String]
-  def self.encode_job(job)
-    job.serialize.to_json
-  end
-
-  # @param [Google::Cloud::Pubsub::ReceivedMessage] message
-  # @return [ActiveJob::Base]
-  def self.decode_message(message)
-    serialized_job = JSON.parse(message.data)
-    job = ActiveJob::Base.deserialize(serialized_job)
-    job.provider_job_id = message.message_id
-    job.scheduled_at = message.attributes["timestamp"]&.to_i
-    job
-  end
-
-  # Perform the logic necessary to execute the job within the message.
-  #
-  # @note Delayed jobs are a bit special in how they're executed.
-  # @param [Google::Cloud::Pubsub::ReceivedMessage] message
-  def self.execute(message)
-    job = decode_message(message)
-    delayed_by = if job.scheduled_at.present?
-      job.scheduled_at - Time.now.to_i
-    end
-
-    if delayed_by && delayed_by > 0
-      # Modify ack! deadline so that the message is automatically rescheduled
-      # once it's past its deadline.
-      message.modify_ack_deadline!(delayed_by)
-    else
-      job.perform_now
-      message.ack!
-    end
-  end
+  class Error < StandardError; end
 
   # A tiny abstraction around Google Pub/Sub topics and subscribers.
   class Queue
@@ -99,6 +63,43 @@ class GooglePubSubAdapter
     # @return [String] google pub/sub short name for our main subscription
     private def subscription_name
       "#{name}-subscription-main"
+    end
+  end
+
+
+  # @param [ActiveJob::Base]
+  # @return [String]
+  def self.encode_job(job)
+    job.serialize.to_json
+  end
+
+  # @param [Google::Cloud::Pubsub::ReceivedMessage] message
+  # @return [ActiveJob::Base]
+  def self.decode_message(message)
+    serialized_job = JSON.parse(message.data)
+    job = ActiveJob::Base.deserialize(serialized_job)
+    job.provider_job_id = message.message_id
+    job.scheduled_at = message.attributes["timestamp"]&.to_i
+    job
+  end
+
+  # Perform the logic necessary to execute the job within the message.
+  #
+  # @note Delayed jobs are a bit special in how they're executed.
+  # @param [Google::Cloud::Pubsub::ReceivedMessage] message
+  def self.execute(message)
+    job = decode_message(message)
+    delayed_by = if job.scheduled_at.present?
+      job.scheduled_at - Time.now.to_i
+    end
+
+    if delayed_by && delayed_by > 0
+      # Modify ack! deadline so that the message is automatically rescheduled
+      # once it's past its deadline.
+      message.modify_ack_deadline!(delayed_by)
+    else
+      job.perform_now
+      message.ack!
     end
   end
 
