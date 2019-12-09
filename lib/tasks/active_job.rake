@@ -35,7 +35,7 @@ namespace :active_job do
 
       subscriber = queue.subscription.listen do |message|
         Rails.logger.debug "[#{worker_name}] Executing ##{message.message_id}"
-        GooglePubSubActiveJobAdapter.execute(message)
+        GooglePubSubAdapter.execute(message)
       end
       
       subscriber.on_error do |error|

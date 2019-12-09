@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe GooglePubSubActiveJobAdapter do
+RSpec.describe GooglePubSubAdapter do
   class FakeJob < ActiveJob::Base
     queue_as :test_queue
 
