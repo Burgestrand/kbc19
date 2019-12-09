@@ -16,6 +16,7 @@ as close as possible.
 ## Development
 
 1. Make sure you have Ruby installed (see `.tool-versions`).
+1. Make sure you have external dependencies installed (see `Brewfile`).
 2. Make sure you have  `./config/master.key`. Ask your colleagues!
 3. Run setup, `bin/setup`.
 
