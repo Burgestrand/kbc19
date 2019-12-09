@@ -10,6 +10,8 @@ class GooglePubSubAdapter
 
   # A tiny abstraction around Google Pub/Sub topics and subscribers.
   class Queue
+    # @param [#to_s] name
+    # @param [Google::Cloud::Pubsub] :pubsub:
     def initialize(name, pubsub:)
       @name = name.to_s
       @pubsub = pubsub
@@ -22,6 +24,7 @@ class GooglePubSubAdapter
       end
     end
 
+    # Idempotent. Create topic/subscription if necessary, otherwise does nothing.
     def create_if_necessary!
       if topic.blank?
         @topic = pubsub.create_topic(topic_name).tap do |topic|
@@ -38,6 +41,7 @@ class GooglePubSubAdapter
       end
     end
 
+    # Remove both topic and subscription. Beware.
     def destroy!(this_is_not_accidental:)
       @topic.delete
       @subscription.delete
